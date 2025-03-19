@@ -8,8 +8,8 @@ from sklearn.ensemble import RandomForestRegressor
 
 # Load and prepare data
 def load_and_prepare_data():
-    calories = pd.read_csv(""C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\calories.csv"")
-    exercise = pd.read_csv(""C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\exercise.csv"")
+    calories = pd.read_csv(r"C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\calories.csv")
+    exercise = pd.read_csv(r"C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\exercise.csv")
 
     df = exercise.merge(calories, on="User_ID").drop(columns="User_ID")
     df["BMI"] = df["Weight"] / ((df["Height"] / 100) ** 2)
