@@ -159,3 +159,5 @@ if submit_button:
 
             st.balloons()  # Fun animation on success
 
+    except ValueError:
+        st.error("❌ Please enter valid numerical values for all fields.")
