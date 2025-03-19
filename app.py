@@ -4,10 +4,12 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 
+# ✅ Must be the first Streamlit command
+st.set_page_config(page_title="Personal Fitness Tracker", page_icon="🔥", layout="wide")
+
 # Load and prepare data
 @st.cache_data
 def load_and_prepare_data():
-    # Ensure file paths are correct
     calories = pd.read_csv("calories.csv")  
     exercise = pd.read_csv("exercise.csv")
 
@@ -15,7 +17,7 @@ def load_and_prepare_data():
     df["BMI"] = df["Weight"] / ((df["Height"] / 100) ** 2)
     df["BMI"] = df["BMI"].round(2)
     df = df[["Gender", "Age", "BMI", "Duration", "Heart_Rate", "Body_Temp", "Calories"]]
-    df = pd.get_dummies(df, drop_first=True)  # Convert categorical columns
+    df = pd.get_dummies(df, drop_first=True)  
 
     return df
 
@@ -35,14 +37,9 @@ def train_model(df):
 data = load_and_prepare_data()
 model, feature_columns = train_model(data)
 
-# Streamlit UI
-st.set_page_config(page_title="Personal Fitness Tracker", page_icon="🔥", layout="wide")
-
 # --- Header ---
 st.markdown("<h1 style='text-align: center; color: #FF5733;'>🔥 Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center;'>Estimate Calories Burned Based on Your Workout</h4>", unsafe_allow_html=True)
-
-st.image("fitness_banner.jpg", use_column_width=True)  # Add a banner image (optional)
 
 # --- Input Layout ---
 st.markdown("### 🏋️ **Enter Your Details Below:**")
