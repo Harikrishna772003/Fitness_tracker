@@ -1,128 +1,86 @@
-import streamlit as st
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sn
+from textual.app import App, ComposeResult
+from textual.widgets import Header, Footer, Input, Button, Static, Slider, Select
+from textual.containers import Vertical, Horizontal
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_squared_error
-from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
-from sklearn import metrics
-import time
 
-import warnings
-warnings.filterwarnings('ignore')
+# Load and prepare data
+def load_and_prepare_data():
+    calories = pd.read_csv(""C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\calories.csv"")
+    exercise = pd.read_csv(""C:\Fitness Tracker\Project3_files\Implementation of Personal Fitness Tracker using Python\exercise.csv"")
 
-st.write("## Personal Fitness Tracker")
-#st.image("", use_column_width=True)
-st.write("In this WebApp you will be able to observe your predicted calories burned in your body. Pass your parameters such as `Age`, `Gender`, `BMI`, etc., into this WebApp and then you will see the predicted value of kilocalories burned.")
+    df = exercise.merge(calories, on="User_ID").drop(columns="User_ID")
+    df["BMI"] = df["Weight"] / ((df["Height"] / 100) ** 2)
+    df["BMI"] = df["BMI"].round(2)
+    df = df[["Gender", "Age", "BMI", "Duration", "Heart_Rate", "Body_Temp", "Calories"]]
+    df = pd.get_dummies(df, drop_first=True)
 
-st.sidebar.header("User Input Parameters: ")
-
-def user_input_features():
-    age = st.sidebar.slider("Age: ", 10, 100, 30)
-    bmi = st.sidebar.slider("BMI: ", 15, 40, 20)
-    duration = st.sidebar.slider("Duration (min): ", 0, 35, 15)
-    heart_rate = st.sidebar.slider("Heart Rate: ", 60, 130, 80)
-    body_temp = st.sidebar.slider("Body Temperature (C): ", 36, 42, 38)
-    gender_button = st.sidebar.radio("Gender: ", ("Male", "Female"))
-
-    gender = 1 if gender_button == "Male" else 0
-
-    # Use column names to match the training data
-    data_model = {
-        "Age": age,
-        "BMI": bmi,
-        "Duration": duration,
-        "Heart_Rate": heart_rate,
-        "Body_Temp": body_temp,
-        "Gender_male": gender  # Gender is encoded as 1 for male, 0 for female
-    }
-
-    features = pd.DataFrame(data_model, index=[0])
-    return features
-
-df = user_input_features()
-
-st.write("---")
-st.header("Your Parameters: ")
-latest_iteration = st.empty()
-bar = st.progress(0)
-for i in range(100):
-    bar.progress(i + 1)
-    time.sleep(0.01)
-st.write(df)
-
-# Load and preprocess data
-calories = pd.read_csv("calories.csv")
-exercise = pd.read_csv("exercise.csv")
-
-exercise_df = exercise.merge(calories, on="User_ID")
-exercise_df.drop(columns="User_ID", inplace=True)
-
-exercise_train_data, exercise_test_data = train_test_split(exercise_df, test_size=0.2, random_state=1)
-
-# Add BMI column to both training and test sets
-for data in [exercise_train_data, exercise_test_data]:
-    data["BMI"] = data["Weight"] / ((data["Height"] / 100) ** 2)
-    data["BMI"] = round(data["BMI"], 2)
-
-# Prepare the training and testing sets
-exercise_train_data = exercise_train_data[["Gender", "Age", "BMI", "Duration", "Heart_Rate", "Body_Temp", "Calories"]]
-exercise_test_data = exercise_test_data[["Gender", "Age", "BMI", "Duration", "Heart_Rate", "Body_Temp", "Calories"]]
-exercise_train_data = pd.get_dummies(exercise_train_data, drop_first=True)
-exercise_test_data = pd.get_dummies(exercise_test_data, drop_first=True)
-
-# Separate features and labels
-X_train = exercise_train_data.drop("Calories", axis=1)
-y_train = exercise_train_data["Calories"]
-
-X_test = exercise_test_data.drop("Calories", axis=1)
-y_test = exercise_test_data["Calories"]
+    return df
 
 # Train the model
-random_reg = RandomForestRegressor(n_estimators=1000, max_features=3, max_depth=6)
-random_reg.fit(X_train, y_train)
+def train_model(df):
+    X = df.drop("Calories", axis=1)
+    y = df["Calories"]
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1)
+    model = RandomForestRegressor(n_estimators=1000, max_features=3, max_depth=6)
+    model.fit(X_train, y_train)
+    return model, X_train.columns
 
-# Align prediction data columns with training data
-df = df.reindex(columns=X_train.columns, fill_value=0)
+# Load model
+data = load_and_prepare_data()
+model, feature_columns = train_model(data)
 
-# Make prediction
-prediction = random_reg.predict(df)
+class FitnessApp(App):
+    """A Textual Terminal UI for a Fitness Tracker"""
 
-st.write("---")
-st.header("Prediction: ")
-latest_iteration = st.empty()
-bar = st.progress(0)
-for i in range(100):
-    bar.progress(i + 1)
-    time.sleep(0.01)
+    def compose(self) -> ComposeResult:
+        """Define the UI layout"""
+        yield Header()
+        yield Static("🔥 **Personal Fitness Tracker** 🔥", classes="title")
+        
+        with Vertical():
+            yield Static("Enter your details:")
+            yield Slider(name="age", label="Age", min=10, max=100, step=1, value=30)
+            yield Slider(name="bmi", label="BMI", min=15, max=40, step=0.1, value=22.5)
+            yield Slider(name="duration", label="Duration (min)", min=0, max=35, step=1, value=15)
+            yield Slider(name="heart_rate", label="Heart Rate", min=60, max=130, step=1, value=80)
+            yield Slider(name="body_temp", label="Body Temp (°C)", min=36, max=42, step=0.1, value=37.0)
+            yield Select([("Male", "1"), ("Female", "0")], name="gender", label="Gender")
 
-st.write(f"{round(prediction[0], 2)} **kilocalories**")
+        with Horizontal():
+            yield Button("Predict Calories", name="predict", variant="primary")
+            yield Static("", name="result", classes="result")
 
-st.write("---")
-st.header("Similar Results: ")
-latest_iteration = st.empty()
-bar = st.progress(0)
-for i in range(100):
-    bar.progress(i + 1)
-    time.sleep(0.01)
+        yield Footer()
 
-# Find similar results based on predicted calories
-calorie_range = [prediction[0] - 10, prediction[0] + 10]
-similar_data = exercise_df[(exercise_df["Calories"] >= calorie_range[0]) & (exercise_df["Calories"] <= calorie_range[1])]
-st.write(similar_data.sample(5))
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        """Handle button press to predict calories"""
+        if event.button.name == "predict":
+            age = self.query_one("#age", Slider).value
+            bmi = self.query_one("#bmi", Slider).value
+            duration = self.query_one("#duration", Slider).value
+            heart_rate = self.query_one("#heart_rate", Slider).value
+            body_temp = self.query_one("#body_temp", Slider).value
+            gender = int(self.query_one("#gender", Select).value)
 
-st.write("---")
-st.header("General Information: ")
+            user_data = {
+                "Age": age,
+                "BMI": bmi,
+                "Duration": duration,
+                "Heart_Rate": heart_rate,
+                "Body_Temp": body_temp,
+                "Gender_male": gender,
+            }
 
-# Boolean logic for age, duration, etc., compared to the user's input
-boolean_age = (exercise_df["Age"] < df["Age"].values[0]).tolist()
-boolean_duration = (exercise_df["Duration"] < df["Duration"].values[0]).tolist()
-boolean_body_temp = (exercise_df["Body_Temp"] < df["Body_Temp"].values[0]).tolist()
-boolean_heart_rate = (exercise_df["Heart_Rate"] < df["Heart_Rate"].values[0]).tolist()
+            df = pd.DataFrame([user_data])
+            df = df.reindex(columns=feature_columns, fill_value=0)
+            prediction = model.predict(df)
 
-st.write("You are older than", round(sum(boolean_age) / len(boolean_age), 2) * 100, "% of other people.")
-st.write("Your exercise duration is higher than", round(sum(boolean_duration) / len(boolean_duration), 2) * 100, "% of other people.")
-st.write("You have a higher heart rate than", round(sum(boolean_heart_rate) / len(boolean_heart_rate), 2) * 100, "% of other people during exercise.")
-st.write("You have a higher body temperature than", round(sum(boolean_body_temp) / len(boolean_body_temp), 2) * 100, "% of other people during exercise.")
+            result_text = f"🔥 Estimated Calories Burned: **{round(prediction[0], 2)} kcal** 🔥"
+            self.query_one("#result", Static).update(result_text)
+
+if __name__ == "__main__":
+    app = FitnessApp()
+    app.run()
