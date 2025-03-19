@@ -91,7 +91,7 @@ data = load_and_prepare_data()
 model, feature_columns = train_model(data)
 
 # --- Page Title ---
-st.markdown("<h1 style='text-align: center; color: #FFC300;'>🔥 Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FFC300;'>🔥 Ultimate Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: #FFD700;'>Enter Your Details to Estimate Calories Burned</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
