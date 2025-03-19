@@ -100,13 +100,13 @@ with st.form("user_input_form"):
     col1, col2 = st.columns(2)
 
     with col1:
-        age = st.text_input("🎂 Enter Your Age", value="30")
-        bmi = st.text_input("⚖️ Enter Your BMI", value="22.5")
-        duration = st.text_input("⏳ Enter Exercise Duration (min)", value="15")
+        age = st.text_input("🎂 Enter Your Age (10-100)", value="30", help="Enter a value between 10 and 100.")
+        bmi = st.text_input("⚖️ Enter Your BMI (15.0-40.0)", value="22.5", help="Enter a value between 15.0 and 40.0.")
+        duration = st.text_input("⏳ Exercise Duration (min) (0-35)", value="15", help="Enter a value between 0 and 35 minutes.")
 
     with col2:
-        heart_rate = st.text_input("❤️ Enter Your Heart Rate (bpm)", value="80")
-        body_temp = st.text_input("🌡️ Enter Body Temperature (°C)", value="37.0")
+        heart_rate = st.text_input("❤️ Heart Rate (bpm) (60-130)", value="80", help="Enter a value between 60 and 130 bpm.")
+        body_temp = st.text_input("🌡️ Body Temperature (°C) (36.0-42.0)", value="37.0", help="Enter a value between 36.0 and 42.0°C.")
         gender = st.radio("⚤ Select Gender", ["Male", "Female"], horizontal=True)
 
     submit_button = st.form_submit_button("🔥 Predict Calories Burned")
@@ -122,27 +122,39 @@ if submit_button:
         body_temp = float(body_temp)
         gender_value = 1 if gender == "Male" else 0  # Convert to numerical
 
-        # Prepare input data
-        user_data = {
-            "Age": age,
-            "BMI": bmi,
-            "Duration": duration,
-            "Heart_Rate": heart_rate,
-            "Body_Temp": body_temp,
-            "Gender_male": gender_value,
-        }
+        # Validate input ranges
+        if not (10 <= age <= 100):
+            st.error("❌ Age must be between 10 and 100.")
+        elif not (15.0 <= bmi <= 40.0):
+            st.error("❌ BMI must be between 15.0 and 40.0.")
+        elif not (0 <= duration <= 35):
+            st.error("❌ Exercise duration must be between 0 and 35 minutes.")
+        elif not (60 <= heart_rate <= 130):
+            st.error("❌ Heart rate must be between 60 and 130 bpm.")
+        elif not (36.0 <= body_temp <= 42.0):
+            st.error("❌ Body temperature must be between 36.0 and 42.0°C.")
+        else:
+            # Prepare input data
+            user_data = {
+                "Age": age,
+                "BMI": bmi,
+                "Duration": duration,
+                "Heart_Rate": heart_rate,
+                "Body_Temp": body_temp,
+                "Gender_male": gender_value,
+            }
 
-        df = pd.DataFrame([user_data])
-        df = df.reindex(columns=feature_columns, fill_value=0)  # Ensure correct column order
-        prediction = model.predict(df)
+            df = pd.DataFrame([user_data])
+            df = df.reindex(columns=feature_columns, fill_value=0)  # Ensure correct column order
+            prediction = model.predict(df)
 
-        st.markdown(f"""
-            <div class='result-box'>
-                🔥 Estimated Calories Burned: <b>{round(prediction[0], 2)} kcal</b> 🔥
-            </div>
-        """, unsafe_allow_html=True)
+            st.markdown(f"""
+                <div class='result-box'>
+                    🔥 Estimated Calories Burned: <b>{round(prediction[0], 2)} kcal</b> 🔥
+                </div>
+            """, unsafe_allow_html=True)
 
-        st.balloons()  # Fun animation on success
+            st.balloons()  # Fun animation on success
 
     except ValueError:
         st.error("❌ Please enter valid numerical values for all fields.")
