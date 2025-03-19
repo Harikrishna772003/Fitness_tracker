@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestRegressor
 
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="🔥 Ultimate Fitness Tracker",
+    page_title="🔥Fitness Tracker Application",
     page_icon="💪",
     layout="wide",
     initial_sidebar_state="expanded"
