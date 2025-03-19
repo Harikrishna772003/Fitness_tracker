@@ -49,6 +49,15 @@ st.markdown("""
             font-size: 20px;
             color: #FFD700;
         }
+        .footer {
+            text-align: center;
+            font-size: 16px;
+            color: #FFD700;
+            margin-top: 30px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+        }
     </style>
     """, unsafe_allow_html=True)
 
@@ -145,6 +154,9 @@ if st.button("🔥 Predict Calories Burned", use_container_width=True):
     st.progress(min(1.0, prediction[0] / 500))  # Simulated progress bar
     st.balloons()  # Fun animation when prediction is made!
 
-# --- Footer ---
+# --- Footer (Designed by You) ---
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #FFD700;'>💪 Stay Motivated. Keep Moving. Burn More Calories! 💪</h4>", unsafe_allow_html=True)
+st.markdown(
+    "<div class='footer'>🔥 App Designed by <b>T.HARIKRISHNA</b> | Keep Hustling! 💪</div>", 
+    unsafe_allow_html=True
+)
