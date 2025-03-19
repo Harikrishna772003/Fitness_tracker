@@ -6,48 +6,47 @@ from sklearn.ensemble import RandomForestRegressor
 
 # --- Page Configuration ---
 st.set_page_config(
-    page_title="🔥Ultimate Python Fitness Tracker🔥",
+    page_title="🔥 Personal Fitness Tracker",
     page_icon="💪",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# --- Custom CSS for Glassmorphism UI ---
+# --- Custom CSS for Stylish UI ---
 st.markdown("""
     <style>
         body {
-            background: linear-gradient(to right, #0F2027, #203A43, #2C5364);
+            background-color: #1E1E1E;
             color: white;
             font-family: 'Arial', sans-serif;
+        }
+        .stTextInput>div>div>input {
+            background-color: #333;
+            color: white;
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .stRadio>div>label {
+            color: white;
+            font-weight: bold;
         }
         .stButton>button {
             background-color: #FF5733 !important;
             color: white !important;
-            border-radius: 10px;
             font-size: 20px;
-            padding: 10px 20px;
-            transition: 0.3s;
+            padding: 10px;
+            border-radius: 10px;
         }
         .stButton>button:hover {
             background-color: #C70039 !important;
         }
-        .glass-card {
-            background: rgba(255, 255, 255, 0.15);
+        .result-box {
+            background: rgba(255, 255, 255, 0.1);
             padding: 20px;
             border-radius: 15px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.2);
-        }
-        .title {
             text-align: center;
-            font-size: 50px;
+            font-size: 22px;
             font-weight: bold;
             color: #FFC300;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 20px;
-            color: #FFD700;
         }
         .footer {
             text-align: center;
@@ -55,7 +54,7 @@ st.markdown("""
             color: #FFD700;
             margin-top: 30px;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.15);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
         }
     </style>
@@ -92,71 +91,62 @@ data = load_and_prepare_data()
 model, feature_columns = train_model(data)
 
 # --- Page Title ---
-st.markdown("<h1 class='title'>🔥 Fitness Tracker Application 🔥</h1>", unsafe_allow_html=True)
-st.markdown("<h4 class='subtitle'>Calculate Calories Burned with AI</h4>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FFC300;'>🔥 Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
+st.markdown("<h4 style='text-align: center; color: #FFD700;'>Enter Your Details to Estimate Calories Burned</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
-# --- Input Section ---
-st.markdown("### 🏋️ **Enter Your Workout Details:**")
-col1, col2, col3 = st.columns(3)
+# --- User Input Form ---
+with st.form("user_input_form"):
+    col1, col2 = st.columns(2)
 
-with col1:
-    with st.container():
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        age = st.slider("🎂 Age", min_value=10, max_value=100, value=30)
-        bmi = st.slider("⚖️ BMI", min_value=15.0, max_value=40.0, value=22.5, step=0.1)
-        st.markdown("</div>", unsafe_allow_html=True)
+    with col1:
+        age = st.text_input("🎂 Enter Your Age", value="30")
+        bmi = st.text_input("⚖️ Enter Your BMI", value="22.5")
+        duration = st.text_input("⏳ Enter Exercise Duration (min)", value="15")
 
-with col2:
-    with st.container():
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        duration = st.slider("⏳ Exercise Duration (min)", min_value=0, max_value=35, value=15)
-        heart_rate = st.slider("❤️ Heart Rate (bpm)", min_value=60, max_value=130, value=80)
-        st.markdown("</div>", unsafe_allow_html=True)
+    with col2:
+        heart_rate = st.text_input("❤️ Enter Your Heart Rate (bpm)", value="80")
+        body_temp = st.text_input("🌡️ Enter Body Temperature (°C)", value="37.0")
+        gender = st.radio("⚤ Select Gender", ["Male", "Female"], horizontal=True)
 
-with col3:
-    with st.container():
-        st.markdown("<div class='glass-card'>", unsafe_allow_html=True)
-        body_temp = st.slider("🌡️ Body Temperature (°C)", min_value=36.0, max_value=42.0, value=37.0, step=0.1)
-        gender = st.radio("⚤ Gender", ["Male", "Female"], horizontal=True)
-        st.markdown("</div>", unsafe_allow_html=True)
+    submit_button = st.form_submit_button("🔥 Predict Calories Burned")
 
-# Convert gender to numerical
-gender_value = 1 if gender == "Male" else 0  
+# --- Convert Inputs & Predict ---
+if submit_button:
+    try:
+        # Convert input values
+        age = int(age)
+        bmi = float(bmi)
+        duration = int(duration)
+        heart_rate = int(heart_rate)
+        body_temp = float(body_temp)
+        gender_value = 1 if gender == "Male" else 0  # Convert to numerical
 
-# --- Predict Button ---
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center;'>🚀 Predict Your Calories Burned</h3>", unsafe_allow_html=True)
+        # Prepare input data
+        user_data = {
+            "Age": age,
+            "BMI": bmi,
+            "Duration": duration,
+            "Heart_Rate": heart_rate,
+            "Body_Temp": body_temp,
+            "Gender_male": gender_value,
+        }
 
-if st.button("🔥 Predict Calories Burned", use_container_width=True):
-    user_data = {
-        "Age": age,
-        "BMI": bmi,
-        "Duration": duration,
-        "Heart_Rate": heart_rate,
-        "Body_Temp": body_temp,
-        "Gender_male": gender_value,
-    }
+        df = pd.DataFrame([user_data])
+        df = df.reindex(columns=feature_columns, fill_value=0)  # Ensure correct column order
+        prediction = model.predict(df)
 
-    df = pd.DataFrame([user_data])
-    df = df.reindex(columns=feature_columns, fill_value=0)  # Ensure correct column order
-    prediction = model.predict(df)
+        st.markdown(f"""
+            <div class='result-box'>
+                🔥 Estimated Calories Burned: <b>{round(prediction[0], 2)} kcal</b> 🔥
+            </div>
+        """, unsafe_allow_html=True)
 
-    st.markdown(
-        f"""
-        <div style='background: rgba(255, 255, 255, 0.2); padding: 20px; border-radius: 15px; backdrop-filter: blur(8px); box-shadow: 0px 4px 15px rgba(255, 255, 255, 0.3); text-align: center;'>
-            <h2 style='color: #FFC300;'>🔥 Estimated Calories Burned: {round(prediction[0], 2)} kcal 🔥</h2>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+        st.balloons()  # Fun animation on success
 
-    st.progress(min(1.0, prediction[0] / 500))  # Simulated progress bar
-    st.balloons()  # Fun animation when prediction is made!
+    except ValueError:
+        st.error("❌ Please enter valid numerical values for all fields.")
 
 # --- Footer (Designed by You) ---
 st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown(
-    "<div class='footer'>🔥 App Designed by <b>T.HARIKRISHNA</b> | Keep Hustling! 💪</div>", 
-    unsafe_allow_html=True
-)
+st.markdown("<div class='footer'>🔥 App Designed by <b>T.HARIKRISHNA</b> | Stay Fit! 💪</div>", unsafe_allow_html=True)
