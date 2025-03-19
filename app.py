@@ -52,7 +52,7 @@ st.markdown("""
             text-align: center;
             font-size: 16px;
             color: #FFD700;
-            margin-top: 30px;
+            margin-top: 10px;
             padding: 10px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -91,7 +91,7 @@ data = load_and_prepare_data()
 model, feature_columns = train_model(data)
 
 # --- Page Title ---
-st.markdown("<h1 style='text-align: center; color: #FFC300;'>🔥 Ultimate Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center; color: #FFC300;'>🔥 Personal Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
 st.markdown("<h4 style='text-align: center; color: #FFD700;'>Enter Your Details to Estimate Calories Burned</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -110,6 +110,9 @@ with st.form("user_input_form"):
         gender = st.radio("⚤ Select Gender", ["Male", "Female"], horizontal=True)
 
     submit_button = st.form_submit_button("🔥 Predict Calories Burned")
+
+    # --- Footer (Designed by You) ---
+    st.markdown("<div class='footer'>🔥 App Designed by <b>T.HARIKRISHNA</b></div>", unsafe_allow_html=True)
 
 # --- Convert Inputs & Predict ---
 if submit_button:
@@ -156,9 +159,3 @@ if submit_button:
 
             st.balloons()  # Fun animation on success
 
-    except ValueError:
-        st.error("❌ Please enter valid numerical values for all fields.")
-
-# --- Footer (Designed by You) ---
-st.markdown("<hr>", unsafe_allow_html=True)
-st.markdown("<div class='footer'>🔥 App Designed by <b>T.HARIKRISHNA</b> | Stay Fit! 💪</div>", unsafe_allow_html=True)
