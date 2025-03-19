@@ -92,7 +92,7 @@ data = load_and_prepare_data()
 model, feature_columns = train_model(data)
 
 # --- Page Title ---
-st.markdown("<h1 class='title'>🔥 Ultimate Fitness Tracker 🔥</h1>", unsafe_allow_html=True)
+st.markdown("<h1 class='title'>🔥 Fitness Tracker Application 🔥</h1>", unsafe_allow_html=True)
 st.markdown("<h4 class='subtitle'>Calculate Calories Burned with AI</h4>", unsafe_allow_html=True)
 st.markdown("<hr>", unsafe_allow_html=True)
 
